@@ -33,8 +33,8 @@ export default function Header() {
   }, [connection, wallet?.publicKey]);
 
   return (
-    <header className="flex h-18 w-full sm:px-16 px-8 gap-4 items-center justify-between bg-white shadow-sm">
-      <nav className="flex h-full w-full px-8 gap-4 items-center justify-between">
+    <header className="flex h-18 w-full bg-white shadow-sm">
+      <nav className="flex h-full w-full sm:px-16 px-8 gap-4 items-center justify-between">
         <img src="/vite.svg" alt="vite" className="h-10" />
 
         <span className="flex flex-row gap-4 items-center">
