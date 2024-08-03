@@ -16,10 +16,10 @@ export default function Header() {
       () => {
         // fetchTokenBalance();
       },
-      { commitment: "confirmed" }
+      { commitment: "confirmed" },
     );
 
-    connection.getAccountInfo(wallet.publicKey).then((info) => {
+    connection.getAccountInfo(wallet.publicKey).then(info => {
       if (info) {
         // fetchTokenBalance();
       }
