@@ -1,8 +1,10 @@
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
-import { useEffect } from "react";
+import { LAMPORTS_PER_SOL } from "@solana/web3.js";
+import { useEffect, useState } from "react";
 
 export default function Header() {
+  const [balance, setBalance] = useState(0);
   const { connection } = useConnection();
   const wallet = useWallet();
 
@@ -13,7 +15,9 @@ export default function Header() {
 
     connection.onAccountChange(
       wallet.publicKey,
-      () => {
+      updatedAccountInfo => {
+        setBalance(updatedAccountInfo.lamports / LAMPORTS_PER_SOL);
+
         // fetchTokenBalance();
       },
       { commitment: "confirmed" },
@@ -21,6 +25,8 @@ export default function Header() {
 
     connection.getAccountInfo(wallet.publicKey).then(info => {
       if (info) {
+        setBalance(info.lamports / LAMPORTS_PER_SOL);
+
         // fetchTokenBalance();
       }
     });
@@ -31,7 +37,11 @@ export default function Header() {
       <nav className="flex h-full w-full px-8 gap-4 items-center justify-between">
         <img src="/vite.svg" alt="vite" className="h-10" />
 
-        <WalletMultiButton></WalletMultiButton>
+        <span className="flex flex-row gap-4 items-center">
+          {wallet?.publicKey ? `Balance: ${balance} SOL` : ""}
+
+          <WalletMultiButton />
+        </span>
       </nav>
     </header>
   );
