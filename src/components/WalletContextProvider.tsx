@@ -4,12 +4,9 @@ import {
   WalletProvider,
 } from "@solana/wallet-adapter-react";
 import { WalletModalProvider } from "@solana/wallet-adapter-react-ui";
-import {
-  PhantomWalletAdapter,
-  SolflareWalletAdapter,
-} from "@solana/wallet-adapter-wallets";
-import "./WalletContextProvider.css";
+import { UnsafeBurnerWalletAdapter } from "@solana/wallet-adapter-wallets";
 import { Cluster, clusterApiUrl } from "@solana/web3.js";
+import "./WalletContextProvider.css";
 
 export const WalletContextProvider: FC<{ children: ReactNode }> = ({
   children,
@@ -18,7 +15,7 @@ export const WalletContextProvider: FC<{ children: ReactNode }> = ({
     import.meta.env.VITE_RPC_URL ??
     clusterApiUrl(import.meta.env.VITE_SOL_CLUSTER as Cluster);
   const wallets = useMemo(() => {
-    return [new PhantomWalletAdapter(), new SolflareWalletAdapter()];
+    return [new UnsafeBurnerWalletAdapter()];
   }, []);
 
   return (
