@@ -1,3 +1,8 @@
+export type TransactionResponse = {
+  isError: boolean;
+  message: string;
+};
+
 export type WalletState = {
   solBalance: number;
 };
