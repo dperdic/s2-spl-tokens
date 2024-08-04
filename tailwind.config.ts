@@ -6,6 +6,7 @@ export default {
     extend: {
       spacing: {
         "18": "72px",
+        "192": "768px",
       },
     },
   },
