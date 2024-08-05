@@ -15,7 +15,7 @@ const getEndpoint = (): string => {
   return rpcUrl;
 };
 
-export const WalletContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
+const WalletContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const endpoint = getEndpoint();
 
   const wallets = useMemo(() => {
@@ -30,3 +30,5 @@ export const WalletContextProvider: FC<{ children: ReactNode }> = ({ children })
     </ConnectionProvider>
   );
 };
+
+export default WalletContextProvider;

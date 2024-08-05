@@ -1,4 +1,4 @@
-import { WalletContextProvider } from "./components/WalletContextProvider";
+import WalletContextProvider from "./components/WalletContextProvider";
 import Header from "./components/Header";
 import Main from "./components/Main";
 import Footer from "./components/Footer";
