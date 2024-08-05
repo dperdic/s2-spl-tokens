@@ -8,7 +8,7 @@ function Main() {
   return (
     <main className="w-full flex-grow sm:px-16 px-8 py-8">
       {publicKey ? (
-        <div className="flex flex-col gap-12">
+        <div className="flex flex-col gap-8">
           <Airdrop />
           <Token />
         </div>
