@@ -1,5 +1,5 @@
 import { useWallet } from "@solana/wallet-adapter-react";
-import Solana from "./Solana";
+import Airdrop from "./Airdrop";
 import Token from "./Token";
 
 function Main() {
@@ -9,7 +9,7 @@ function Main() {
     <main className="w-full flex-grow sm:px-16 px-8 py-8">
       {publicKey ? (
         <div className="flex flex-col gap-12">
-          <Solana />
+          <Airdrop />
           <Token />
         </div>
       ) : (
