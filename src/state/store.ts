@@ -1,11 +1,11 @@
 import { create } from "zustand";
 import { WalletStateStore } from "../utils/types";
 
-export const useWalletStateStore = create<WalletStateStore>(set => ({
-  walletState: {
-    solBalance: 0,
+export const useAddressStore = create<WalletStateStore>(set => ({
+  addresses: {
+    mintAddress: undefined,
   },
-  setWalletState: newWalletState => {
-    set(() => ({ walletState: newWalletState }));
+  setAddresses: newWalletState => {
+    set(() => ({ addresses: newWalletState }));
   },
 }));
