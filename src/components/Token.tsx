@@ -5,6 +5,7 @@ import {
   createInitializeAccountInstruction,
   createInitializeMintInstruction,
   createMintToCheckedInstruction,
+  createTransferCheckedInstruction,
   getAccount,
   getAccountLenForMint,
   getAssociatedTokenAddress,
@@ -28,12 +29,17 @@ import {
   Transaction,
 } from "@solana/web3.js";
 import { useState } from "react";
+import { TOKEN_DECIMALS } from "../utils/constants";
 
 export default function Token() {
   const [mintAddress, setMintAddress] = useState<PublicKey | null>(null);
   const [ata, setAta] = useState<PublicKey | null>(null);
   const [mintAmount, setMintAmount] = useState<string>();
   const [burnAmount, setBurnAmount] = useState<string>();
+
+  const [senderAddress, setSenderAddress] = useState<string>();
+  const [recipientAddress, setRecipientAddress] = useState<string>();
+
   const { connection } = useConnection();
   const { publicKey, sendTransaction } = useWallet();
 
@@ -57,7 +63,7 @@ export default function Token() {
         lamports,
         programId: TOKEN_PROGRAM_ID,
       }),
-      createInitializeMintInstruction(mint.publicKey, 9, publicKey, publicKey, TOKEN_PROGRAM_ID),
+      createInitializeMintInstruction(mint.publicKey, TOKEN_DECIMALS, publicKey, publicKey, TOKEN_PROGRAM_ID),
     );
 
     const tx = await sendTransaction(transaction, connection, {
@@ -146,7 +152,7 @@ export default function Token() {
     console.log(account);
   };
 
-  const mintToken = async () => {
+  const mintTokens = async () => {
     if (!publicKey || !connection || !mintAddress || !mintAmount) {
       return;
     }
@@ -163,7 +169,7 @@ export default function Token() {
     const associatedToken = await getAssociatedTokenAddress(mintAddress, publicKey);
 
     const transaction = new Transaction().add(
-      createMintToCheckedInstruction(mintAddress, associatedToken, publicKey, mintAmountNumber, 9),
+      createMintToCheckedInstruction(mintAddress, associatedToken, publicKey, mintAmountNumber, TOKEN_DECIMALS),
     );
 
     const txHash = await sendTransaction(transaction, connection);
@@ -177,7 +183,7 @@ export default function Token() {
     console.log("Balance: ", account.amount);
   };
 
-  const burnToken = async () => {
+  const burnTokens = async () => {
     if (!publicKey || !connection || !mintAddress || !burnAmount) {
       return;
     }
@@ -194,7 +200,7 @@ export default function Token() {
     const associatedToken = await getAssociatedTokenAddress(mintAddress, publicKey);
 
     const transaction = new Transaction().add(
-      createBurnCheckedInstruction(associatedToken, mintAddress, publicKey, burnAmountNumber, 9),
+      createBurnCheckedInstruction(associatedToken, mintAddress, publicKey, burnAmountNumber, TOKEN_DECIMALS),
     );
 
     const txHash = await sendTransaction(transaction, connection);
@@ -206,6 +212,12 @@ export default function Token() {
     const account = await getAccount(connection, associatedToken);
 
     console.log("Balance: ", account.amount);
+  };
+
+  const transferTokens = async () => {
+    if (!publicKey || !connection || !mintAddress || !senderAddress || !recipientAddress) {
+      return;
+    }
   };
 
   const confirmTransaction = async (tx: string): Promise<RpcResponseAndContext<SignatureResult>> => {
@@ -280,7 +292,7 @@ export default function Token() {
             type="button"
             className="btn btn-sm btn-blue"
             onClick={async () => {
-              await mintToken();
+              await mintTokens();
             }}
           >
             Mint
@@ -303,10 +315,42 @@ export default function Token() {
             type="button"
             className="btn btn-sm btn-blue"
             onClick={async () => {
-              await burnToken();
+              await burnTokens();
             }}
           >
             Burn
+          </button>
+        </div>
+
+        <div className="flex flex-row gap-3">
+          <input
+            type="number"
+            placeholder="Sender address"
+            value={senderAddress}
+            onChange={event => {
+              setSenderAddress(event.target.value);
+            }}
+            className="max-w-96 border px-3 py-2 shadow-sm block w-full border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:bg-gray-50 disabled:text-gray-500"
+          />
+
+          <input
+            type="string"
+            placeholder="Recipient address"
+            value={recipientAddress}
+            onChange={event => {
+              setRecipientAddress(event.target.value);
+            }}
+            className="max-w-96 border px-3 py-2 shadow-sm block w-full border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:bg-gray-50 disabled:text-gray-500"
+          />
+
+          <button
+            type="button"
+            className="btn btn-sm btn-blue"
+            onClick={async () => {
+              await transferTokens();
+            }}
+          >
+            Transfer tokens
           </button>
         </div>
 
