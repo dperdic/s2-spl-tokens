@@ -6,7 +6,7 @@ function Main() {
   const { publicKey } = useWallet();
 
   return (
-    <main className="w-full flex-grow sm:px-16 px-8 py-8">
+    <main className="w-full flex-grow sm:px-16 px-8 py-8 mt-18">
       {publicKey ? (
         <div className="flex flex-col gap-8">
           <Airdrop />
