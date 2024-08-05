@@ -1,1 +1,5 @@
 @import "@solana/wallet-adapter-react-ui/styles.css";
+
+.wallet-adapter-button-trigger {
+  @apply bg-blue-600;
+}

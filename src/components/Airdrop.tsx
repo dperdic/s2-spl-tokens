@@ -66,7 +66,7 @@ export default function Airdrop() {
       <h3 className="text-2xl">SOL</h3>
 
       <div className="flex flex-col gap-3">
-        <div>Balance: {balance} SOL</div>
+        <div className="text-lg">Balance: {balance} SOL</div>
 
         <div className="flex flex-row gap-3">
           <input
