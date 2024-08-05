@@ -19,17 +19,10 @@ import {
   TokenInvalidOwnerError,
 } from "@solana/spl-token";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
-import {
-  Keypair,
-  LAMPORTS_PER_SOL,
-  PublicKey,
-  RpcResponseAndContext,
-  SignatureResult,
-  SystemProgram,
-  Transaction,
-} from "@solana/web3.js";
+import { Keypair, LAMPORTS_PER_SOL, PublicKey, SystemProgram, Transaction } from "@solana/web3.js";
 import { useState } from "react";
 import { TOKEN_DECIMALS } from "../utils/constants";
+import { confirmTransaction } from "../utils/functions";
 
 export default function Token() {
   const [mintAddress, setMintAddress] = useState<PublicKey | null>(null);
@@ -124,7 +117,7 @@ export default function Token() {
 
           const txHash = await sendTransaction(tx, connection);
 
-          await confirmTransaction(txHash);
+          await confirmTransaction(connection, txHash);
 
           console.log(txHash);
         } catch (error: unknown) {
@@ -174,7 +167,7 @@ export default function Token() {
 
     const txHash = await sendTransaction(transaction, connection);
 
-    await confirmTransaction(txHash);
+    await confirmTransaction(connection, txHash);
 
     console.log("Transaction hash: ", txHash);
 
@@ -205,7 +198,7 @@ export default function Token() {
 
     const txHash = await sendTransaction(transaction, connection);
 
-    await confirmTransaction(txHash);
+    await confirmTransaction(connection, txHash);
 
     console.log("Transaction hash: ", txHash);
 
@@ -218,19 +211,6 @@ export default function Token() {
     if (!publicKey || !connection || !mintAddress || !senderAddress || !recipientAddress) {
       return;
     }
-  };
-
-  const confirmTransaction = async (tx: string): Promise<RpcResponseAndContext<SignatureResult>> => {
-    const bh = await connection.getLatestBlockhash();
-
-    return await connection.confirmTransaction(
-      {
-        signature: tx,
-        blockhash: bh.blockhash,
-        lastValidBlockHeight: bh.lastValidBlockHeight,
-      },
-      "confirmed",
-    );
   };
 
   return (

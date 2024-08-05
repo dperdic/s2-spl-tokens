@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
-import { LAMPORTS_PER_SOL, RpcResponseAndContext, SignatureResult } from "@solana/web3.js";
+import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { TransactionResponse } from "../utils/types";
+import { confirmTransaction } from "../utils/functions";
 
 export default function Airdrop() {
   const [balance, setBalance] = useState(0);
@@ -38,7 +39,7 @@ export default function Airdrop() {
       try {
         const tx = await connection.requestAirdrop(publicKey, airdropAmount * LAMPORTS_PER_SOL);
 
-        const confirmation = await confirmTransaction(tx);
+        const confirmation = await confirmTransaction(connection, tx);
 
         if (confirmation.value.err) {
           setResponse({
@@ -58,19 +59,6 @@ export default function Airdrop() {
         });
       }
     }
-  };
-
-  const confirmTransaction = async (tx: string): Promise<RpcResponseAndContext<SignatureResult>> => {
-    const bh = await connection.getLatestBlockhash();
-
-    return await connection.confirmTransaction(
-      {
-        signature: tx,
-        blockhash: bh.blockhash,
-        lastValidBlockHeight: bh.lastValidBlockHeight,
-      },
-      "confirmed",
-    );
   };
 
   return (
