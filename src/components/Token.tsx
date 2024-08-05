@@ -1,14 +1,30 @@
 import {
+  Account,
+  createAssociatedTokenAccountInstruction,
   createInitializeAccountInstruction,
   createInitializeMintInstruction,
+  getAccount,
   getAccountLenForMint,
+  getAssociatedTokenAddress,
   getMinimumBalanceForRentExemptMint,
   getMint,
   MINT_SIZE,
   TOKEN_PROGRAM_ID,
+  TokenAccountNotFoundError,
+  TokenInvalidAccountOwnerError,
+  TokenInvalidMintError,
+  TokenInvalidOwnerError,
 } from "@solana/spl-token";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
-import { Keypair, LAMPORTS_PER_SOL, PublicKey, SystemProgram, Transaction } from "@solana/web3.js";
+import {
+  Keypair,
+  LAMPORTS_PER_SOL,
+  PublicKey,
+  RpcResponseAndContext,
+  SignatureResult,
+  SystemProgram,
+  Transaction,
+} from "@solana/web3.js";
 import { useState } from "react";
 
 export default function Token() {
@@ -47,7 +63,7 @@ export default function Token() {
     console.log(mintAddress);
   };
 
-  const createTokenMintAccount = async () => {
+  const createTokenAccount = async () => {
     if (!publicKey || !connection || !mintAddress) {
       return;
     }
@@ -56,24 +72,84 @@ export default function Token() {
     const space = getAccountLenForMint(mintState);
     const lamports = await connection.getMinimumBalanceForRentExemption(space);
 
-    const newAtaKeypair = Keypair.generate();
+    const associatedTokenKeyPair = Keypair.generate();
 
     const tx = new Transaction().add(
       SystemProgram.createAccount({
         fromPubkey: publicKey,
-        newAccountPubkey: newAtaKeypair.publicKey,
+        newAccountPubkey: associatedTokenKeyPair.publicKey,
         space: space,
         lamports,
         programId: TOKEN_PROGRAM_ID,
       }),
-      createInitializeAccountInstruction(newAtaKeypair.publicKey, mintAddress, publicKey, TOKEN_PROGRAM_ID),
+      createInitializeAccountInstruction(associatedTokenKeyPair.publicKey, mintAddress, publicKey, TOKEN_PROGRAM_ID),
     );
 
     const txHash = await sendTransaction(tx, connection, {
-      signers: [newAtaKeypair],
+      signers: [associatedTokenKeyPair],
     });
 
     console.log("Transaction hash: ", txHash);
+  };
+
+  const createAta = async () => {
+    if (!publicKey || !connection || !mintAddress) {
+      return;
+    }
+
+    const associatedToken = await getAssociatedTokenAddress(mintAddress, publicKey);
+
+    let account: Account;
+
+    try {
+      account = await getAccount(connection, associatedToken);
+    } catch (error: unknown) {
+      if (error instanceof TokenAccountNotFoundError || error instanceof TokenInvalidAccountOwnerError) {
+        // As this isn't atomic, it's possible others can create associated accounts meanwhile.
+        try {
+          const tx = new Transaction().add(
+            createAssociatedTokenAccountInstruction(publicKey, associatedToken, publicKey, mintAddress),
+          );
+
+          const txHash = await sendTransaction(tx, connection);
+
+          await confirmTransaction(txHash);
+
+          console.log(txHash);
+        } catch (error: unknown) {
+          // Ignore all errors; for now there is no API-compatible way to selectively ignore the expected
+          // instruction error if the associated account exists already.
+        }
+
+        // Now this should always succeed
+        account = await getAccount(connection, associatedToken);
+
+        console.log("getAccount: ", account);
+        // console.log("getAccount: ", account);
+      } else {
+        console.log(error as string);
+
+        return;
+      }
+    }
+
+    if (!account.mint.equals(mintAddress)) throw new TokenInvalidMintError();
+    if (!account.owner.equals(publicKey)) throw new TokenInvalidOwnerError();
+
+    console.log(account);
+  };
+
+  const confirmTransaction = async (tx: string): Promise<RpcResponseAndContext<SignatureResult>> => {
+    const bh = await connection.getLatestBlockhash();
+
+    return await connection.confirmTransaction(
+      {
+        signature: tx,
+        blockhash: bh.blockhash,
+        lastValidBlockHeight: bh.lastValidBlockHeight,
+      },
+      "confirmed",
+    );
   };
 
   return (
@@ -100,10 +176,22 @@ export default function Token() {
             type="button"
             className="btn btn-sm btn-blue"
             onClick={async () => {
-              await createTokenMintAccount();
+              await createTokenAccount();
             }}
           >
-            Create mint ATA
+            Create mint account
+          </button>
+        </div>
+
+        <div className="flex flex-row gap-3">
+          <button
+            type="button"
+            className="btn btn-sm btn-blue"
+            onClick={async () => {
+              await createAta();
+            }}
+          >
+            Create ATA
           </button>
         </div>
 
