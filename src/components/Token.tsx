@@ -1,6 +1,9 @@
 import {
+  createInitializeAccountInstruction,
   createInitializeMintInstruction,
+  getAccountLenForMint,
   getMinimumBalanceForRentExemptMint,
+  getMint,
   MINT_SIZE,
   TOKEN_PROGRAM_ID,
 } from "@solana/spl-token";
@@ -44,6 +47,35 @@ export default function Token() {
     console.log(mintAddress);
   };
 
+  const createAssociatedTokenAccount = async () => {
+    if (!publicKey || !connection || !mintAddress) {
+      return;
+    }
+
+    const mintState = await getMint(connection, mintAddress);
+    const space = getAccountLenForMint(mintState);
+    const lamports = await connection.getMinimumBalanceForRentExemption(space);
+
+    const newAtaKeypair = Keypair.generate();
+
+    const tx = new Transaction().add(
+      SystemProgram.createAccount({
+        fromPubkey: publicKey,
+        newAccountPubkey: newAtaKeypair.publicKey,
+        space: space,
+        lamports,
+        programId: TOKEN_PROGRAM_ID,
+      }),
+      createInitializeAccountInstruction(newAtaKeypair.publicKey, mintAddress, publicKey, TOKEN_PROGRAM_ID),
+    );
+
+    const txHash = await sendTransaction(tx, connection, {
+      signers: [newAtaKeypair],
+    });
+
+    console.log("Transaction hash: ", txHash);
+  };
+
   return (
     <div className="flex flex-col gap-4 max-w-192">
       <h3 className="text-2xl">Token</h3>
@@ -60,6 +92,18 @@ export default function Token() {
             }}
           >
             Create mint
+          </button>
+        </div>
+
+        <div className="flex flex-row gap-3">
+          <button
+            type="button"
+            className="btn btn-sm btn-blue"
+            onClick={async () => {
+              await createAssociatedTokenAccount();
+            }}
+          >
+            Create ATA
           </button>
         </div>
 
