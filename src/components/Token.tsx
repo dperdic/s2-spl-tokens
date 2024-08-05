@@ -1,8 +1,10 @@
 import {
   Account,
   createAssociatedTokenAccountInstruction,
+  createBurnCheckedInstruction,
   createInitializeAccountInstruction,
   createInitializeMintInstruction,
+  createMintToCheckedInstruction,
   getAccount,
   getAccountLenForMint,
   getAssociatedTokenAddress,
@@ -29,6 +31,9 @@ import { useState } from "react";
 
 export default function Token() {
   const [mintAddress, setMintAddress] = useState<PublicKey | null>(null);
+  const [ata, setAta] = useState<PublicKey | null>(null);
+  const [mintAmount, setMintAmount] = useState<string>();
+  const [burnAmount, setBurnAmount] = useState<string>();
   const { connection } = useConnection();
   const { publicKey, sendTransaction } = useWallet();
 
@@ -92,7 +97,7 @@ export default function Token() {
     console.log("Transaction hash: ", txHash);
   };
 
-  const createAta = async () => {
+  const getOrCreateAta = async () => {
     if (!publicKey || !connection || !mintAddress) {
       return;
     }
@@ -136,7 +141,71 @@ export default function Token() {
     if (!account.mint.equals(mintAddress)) throw new TokenInvalidMintError();
     if (!account.owner.equals(publicKey)) throw new TokenInvalidOwnerError();
 
+    setAta(account.address);
+
     console.log(account);
+  };
+
+  const mintToken = async () => {
+    if (!publicKey || !connection || !mintAddress || !mintAmount) {
+      return;
+    }
+
+    let mintAmountNumber: number;
+
+    try {
+      mintAmountNumber = Number.parseInt(mintAmount);
+    } catch (error) {
+      console.log("Invalid mint amount");
+      return;
+    }
+
+    const associatedToken = await getAssociatedTokenAddress(mintAddress, publicKey);
+
+    const transaction = new Transaction().add(
+      createMintToCheckedInstruction(mintAddress, associatedToken, publicKey, mintAmountNumber, 9),
+    );
+
+    const txHash = await sendTransaction(transaction, connection);
+
+    await confirmTransaction(txHash);
+
+    console.log("Transaction hash: ", txHash);
+
+    const account = await getAccount(connection, associatedToken);
+
+    console.log("Balance: ", account.amount);
+  };
+
+  const burnToken = async () => {
+    if (!publicKey || !connection || !mintAddress || !burnAmount) {
+      return;
+    }
+
+    let burnAmountNumber: number;
+
+    try {
+      burnAmountNumber = Number.parseInt(burnAmount);
+    } catch (error) {
+      console.log("Invalid burn amount");
+      return;
+    }
+
+    const associatedToken = await getAssociatedTokenAddress(mintAddress, publicKey);
+
+    const transaction = new Transaction().add(
+      createBurnCheckedInstruction(associatedToken, mintAddress, publicKey, burnAmountNumber, 9),
+    );
+
+    const txHash = await sendTransaction(transaction, connection);
+
+    await confirmTransaction(txHash);
+
+    console.log("Transaction hash: ", txHash);
+
+    const account = await getAccount(connection, associatedToken);
+
+    console.log("Balance: ", account.amount);
   };
 
   const confirmTransaction = async (tx: string): Promise<RpcResponseAndContext<SignatureResult>> => {
@@ -188,10 +257,56 @@ export default function Token() {
             type="button"
             className="btn btn-sm btn-blue"
             onClick={async () => {
-              await createAta();
+              await getOrCreateAta();
             }}
           >
             Create ATA
+          </button>
+        </div>
+
+        <div className="flex flex-row gap-3">
+          <input
+            type="number"
+            placeholder="Amount"
+            step={1}
+            min={0}
+            onChange={event => {
+              setMintAmount(event.target.value);
+            }}
+            className="max-w-96 border px-3 py-2 shadow-sm block w-full border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:bg-gray-50 disabled:text-gray-500"
+          />
+
+          <button
+            type="button"
+            className="btn btn-sm btn-blue"
+            onClick={async () => {
+              await mintToken();
+            }}
+          >
+            Mint
+          </button>
+        </div>
+
+        <div className="flex flex-row gap-3">
+          <input
+            type="number"
+            placeholder="Amount"
+            step={0.000000001}
+            min={0}
+            onChange={event => {
+              setBurnAmount(event.target.value);
+            }}
+            className="max-w-96 border px-3 py-2 shadow-sm block w-full border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:bg-gray-50 disabled:text-gray-500"
+          />
+
+          <button
+            type="button"
+            className="btn btn-sm btn-blue"
+            onClick={async () => {
+              await burnToken();
+            }}
+          >
+            Burn
           </button>
         </div>
 
