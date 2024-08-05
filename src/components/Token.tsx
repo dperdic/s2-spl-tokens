@@ -47,7 +47,7 @@ export default function Token() {
     console.log(mintAddress);
   };
 
-  const createAssociatedTokenAccount = async () => {
+  const createTokenMintAccount = async () => {
     if (!publicKey || !connection || !mintAddress) {
       return;
     }
@@ -100,10 +100,10 @@ export default function Token() {
             type="button"
             className="btn btn-sm btn-blue"
             onClick={async () => {
-              await createAssociatedTokenAccount();
+              await createTokenMintAccount();
             }}
           >
-            Create ATA
+            Create mint ATA
           </button>
         </div>
 
