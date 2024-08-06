@@ -1,8 +1,10 @@
 import { useWallet } from "@solana/wallet-adapter-react";
+import { Slide, ToastContainer } from "react-toastify";
 import Airdrop from "./Airdrop";
 import Token from "./Token";
+import "react-toastify/dist/ReactToastify.css";
 
-function Main() {
+export default function Main() {
   const { publicKey } = useWallet();
 
   return (
@@ -15,8 +17,20 @@ function Main() {
       ) : (
         <div>Please connect a wallet</div>
       )}
+
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick={false}
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+        transition={Slide}
+      />
     </main>
   );
 }
-
-export default Main;

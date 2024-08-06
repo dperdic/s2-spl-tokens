@@ -9,6 +9,7 @@ import { Keypair, Transaction, SystemProgram } from "@solana/web3.js";
 import { TOKEN_DECIMALS } from "../utils/constants";
 import { useAddressStore } from "../state/store";
 import { confirmTransaction } from "../utils/functions";
+import { toast } from "react-toastify";
 
 export default function CreateMint() {
   const addresses = useAddressStore(state => state.addresses);
@@ -40,16 +41,20 @@ export default function CreateMint() {
       signers: [mint],
     });
 
-    await confirmTransaction(connection, tx);
+    const confirmation = await confirmTransaction(connection, tx);
 
-    console.log(tx);
+    if (confirmation.value.err) {
+      toast.error(confirmation.value.err.toString());
+    } else {
+      toast.info(`Transaction hash: ${tx}`);
 
-    setAddresses({ ...addresses, mintAddress: mint.publicKey });
+      setAddresses({ ...addresses, mintAddress: mint.publicKey });
+    }
   };
 
   return (
     <div className="flex flex-col gap-3">
-      <div>Mint address: {addresses.mintAddress?.toBase58()}</div>
+      <div className="break-words">Mint address: {addresses.mintAddress?.toBase58()}</div>
 
       <div>
         <button type="button" className="btn btn-sm btn-blue" onClick={createTokenMint}>
