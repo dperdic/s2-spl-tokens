@@ -15,7 +15,7 @@ import {
   TokenInvalidOwnerError,
 } from "@solana/spl-token";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
-import { Keypair, PublicKey, SystemProgram, Transaction } from "@solana/web3.js";
+import { Keypair, SystemProgram, Transaction } from "@solana/web3.js";
 import { useState } from "react";
 import { TOKEN_DECIMALS } from "../utils/constants";
 import { confirmTransaction } from "../utils/functions";
@@ -25,7 +25,6 @@ import MintTokens from "./MintTokens";
 
 export default function Token() {
   const mint = useAppStore(state => state.mint);
-  const [ata, setAta] = useState<PublicKey | null>(null);
   const [mintAmount, setMintAmount] = useState<string>();
   const [burnAmount, setBurnAmount] = useState<string>();
 
@@ -107,8 +106,6 @@ export default function Token() {
 
     if (!account.mint.equals(mint)) throw new TokenInvalidMintError();
     if (!account.owner.equals(publicKey)) throw new TokenInvalidOwnerError();
-
-    setAta(account.address);
 
     console.log(account);
   };
