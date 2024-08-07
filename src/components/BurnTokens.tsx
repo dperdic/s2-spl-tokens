@@ -1,10 +1,5 @@
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
-import {
-  getAssociatedTokenAddress,
-  createMintToCheckedInstruction,
-  getAccount,
-  createAssociatedTokenAccountInstruction,
-} from "@solana/spl-token";
+import { getAssociatedTokenAddress, getAccount, createBurnCheckedInstruction } from "@solana/spl-token";
 import { Transaction } from "@solana/web3.js";
 import { useState } from "react";
 import { useAppStore } from "../state/store";
@@ -14,8 +9,9 @@ import { toast } from "react-toastify";
 
 export default function BurnTokens() {
   const mint = useAppStore(state => state.mint);
-  const [tokenBalance, setTokenBalance] = useState<number>(0);
-  const [mintAmount, setMintAmount] = useState<string>();
+  const tokenBalance = useAppStore(state => state.tokenBalance);
+  const setTokenBalance = useAppStore(state => state.setTokenBalance);
+  const [burnAmount, setBurnAmount] = useState<string>();
   const { connection } = useConnection();
   const { publicKey, sendTransaction } = useWallet();
 
@@ -30,31 +26,25 @@ export default function BurnTokens() {
       return;
     }
 
-    if (!mintAmount) {
-      toast.error("Invalid mint amount");
+    if (!burnAmount) {
+      toast.error("Invalid burn amount");
       return;
     }
 
-    let mintAmountNumber: number;
+    let burnAmountBigInt: bigint;
 
     try {
-      mintAmountNumber = Number.parseFloat(mintAmount) * Math.pow(10, TOKEN_DECIMALS);
+      burnAmountBigInt = BigInt(Number.parseFloat(burnAmount) * Math.pow(10, TOKEN_DECIMALS));
     } catch (error) {
-      toast.error("Invalid mint amount");
+      toast.error("Invalid burn amount");
       return;
     }
 
     const ata = await getAssociatedTokenAddress(mint, publicKey);
 
-    const transaction = new Transaction();
-
-    try {
-      await getAccount(connection, ata);
-    } catch (error) {
-      transaction.add(createAssociatedTokenAccountInstruction(publicKey, ata, publicKey, mint));
-    }
-
-    transaction.add(createMintToCheckedInstruction(mint, ata, publicKey, mintAmountNumber, TOKEN_DECIMALS));
+    const transaction = new Transaction().add(
+      createBurnCheckedInstruction(ata, mint, publicKey, burnAmountBigInt, TOKEN_DECIMALS),
+    );
 
     const txHash = await sendTransaction(transaction, connection);
 
@@ -75,16 +65,15 @@ export default function BurnTokens() {
 
   return (
     <div className="flex flex-col gap-3">
-      <div>Token balance: {tokenBalance?.toString()}</div>
-
       <div className="flex flex-col sm:flex-row gap-3">
         <input
           type="number"
           placeholder="Amount"
           step={0.000000001}
           min={0}
+          max={tokenBalance}
           onChange={event => {
-            setMintAmount(event.target.value);
+            setBurnAmount(event.target.value);
           }}
           className="w-full sm:max-w-72 border px-3 py-2 shadow-sm block w-full border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:bg-gray-50 disabled:text-gray-500"
         />
@@ -92,6 +81,7 @@ export default function BurnTokens() {
         <button
           type="button"
           className="btn btn-sm btn-blue"
+          disabled={!tokenBalance}
           onClick={async () => {
             await burnTokens();
           }}

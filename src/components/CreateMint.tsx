@@ -14,6 +14,7 @@ import { toast } from "react-toastify";
 export default function CreateMint() {
   const mint = useAppStore(state => state.mint);
   const setMint = useAppStore(state => state.setMint);
+  const tokenBalance = useAppStore(state => state.tokenBalance);
   const { publicKey, sendTransaction } = useWallet();
   const { connection } = useConnection();
 
@@ -56,7 +57,10 @@ export default function CreateMint() {
   return (
     <div className="flex flex-col gap-3">
       {mint ? (
-        <div className="break-words">Mint address: {mint?.toBase58()}</div>
+        <div>
+          <div className="break-words">Mint address: {mint?.toBase58()}</div>
+          <div>Token balance: {tokenBalance}</div>
+        </div>
       ) : (
         <div>
           <button type="button" className="btn btn-sm btn-blue" onClick={createTokenMint}>

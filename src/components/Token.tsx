@@ -22,6 +22,7 @@ import { confirmTransaction } from "../utils/functions";
 import CreateMint from "./CreateMint";
 import { useAppStore } from "../state/store";
 import MintTokens from "./MintTokens";
+import BurnTokens from "./BurnTokens";
 
 export default function Token() {
   const mint = useAppStore(state => state.mint);
@@ -188,6 +189,7 @@ export default function Token() {
         {mint && (
           <>
             <MintTokens />
+            <BurnTokens />
           </>
         )}
 

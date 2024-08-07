@@ -14,7 +14,7 @@ import { toast } from "react-toastify";
 
 export default function MintTokens() {
   const mint = useAppStore(state => state.mint);
-  const [tokenBalance, setTokenBalance] = useState<number>(0);
+  const setTokenBalance = useAppStore(state => state.setTokenBalance);
   const [mintAmount, setMintAmount] = useState<string>();
   const { connection } = useConnection();
   const { publicKey, sendTransaction } = useWallet();
@@ -35,10 +35,10 @@ export default function MintTokens() {
       return;
     }
 
-    let mintAmountNumber: number;
+    let mintAmountBigInt: bigint;
 
     try {
-      mintAmountNumber = Number.parseFloat(mintAmount) * Math.pow(10, TOKEN_DECIMALS);
+      mintAmountBigInt = BigInt(Number.parseFloat(mintAmount) * Math.pow(10, TOKEN_DECIMALS));
     } catch (error) {
       toast.error("Invalid mint amount");
       return;
@@ -54,7 +54,7 @@ export default function MintTokens() {
       transaction.add(createAssociatedTokenAccountInstruction(publicKey, ata, publicKey, mint));
     }
 
-    transaction.add(createMintToCheckedInstruction(mint, ata, publicKey, mintAmountNumber, TOKEN_DECIMALS));
+    transaction.add(createMintToCheckedInstruction(mint, ata, publicKey, mintAmountBigInt, TOKEN_DECIMALS));
 
     const txHash = await sendTransaction(transaction, connection);
 
@@ -74,31 +74,27 @@ export default function MintTokens() {
   };
 
   return (
-    <div className="flex flex-col gap-3">
-      <div>Token balance: {tokenBalance?.toString()}</div>
+    <div className="flex flex-col sm:flex-row gap-3">
+      <input
+        type="number"
+        placeholder="Amount"
+        step={0.000000001}
+        min={0}
+        onChange={event => {
+          setMintAmount(event.target.value);
+        }}
+        className="w-full sm:max-w-72 border px-3 py-2 shadow-sm block w-full border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:bg-gray-50 disabled:text-gray-500"
+      />
 
-      <div className="flex flex-col sm:flex-row gap-3">
-        <input
-          type="number"
-          placeholder="Amount"
-          step={0.000000001}
-          min={0}
-          onChange={event => {
-            setMintAmount(event.target.value);
-          }}
-          className="w-full sm:max-w-72 border px-3 py-2 shadow-sm block w-full border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:bg-gray-50 disabled:text-gray-500"
-        />
-
-        <button
-          type="button"
-          className="btn btn-sm btn-blue"
-          onClick={async () => {
-            await mintTokens();
-          }}
-        >
-          Mint
-        </button>
-      </div>
+      <button
+        type="button"
+        className="btn btn-sm btn-blue"
+        onClick={async () => {
+          await mintTokens();
+        }}
+      >
+        Mint
+      </button>
     </div>
   );
 }
