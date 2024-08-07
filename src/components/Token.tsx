@@ -20,9 +20,11 @@ import { useState } from "react";
 import { TOKEN_DECIMALS } from "../utils/constants";
 import { confirmTransaction } from "../utils/functions";
 import CreateMint from "./CreateMint";
+import { useAppStore } from "../state/store";
+import MintTokens from "./MintTokens";
 
 export default function Token() {
-  const [mintAddress, setMintAddress] = useState<PublicKey | null>(null);
+  const mint = useAppStore(state => state.mint);
   const [ata, setAta] = useState<PublicKey | null>(null);
   const [mintAmount, setMintAmount] = useState<string>();
   const [burnAmount, setBurnAmount] = useState<string>();
@@ -34,11 +36,11 @@ export default function Token() {
   const { publicKey, sendTransaction } = useWallet();
 
   const createTokenAccount = async () => {
-    if (!publicKey || !connection || !mintAddress) {
+    if (!publicKey || !connection || !mint) {
       return;
     }
 
-    const mintState = await getMint(connection, mintAddress);
+    const mintState = await getMint(connection, mint);
     const space = getAccountLenForMint(mintState);
     const lamports = await connection.getMinimumBalanceForRentExemption(space);
 
@@ -52,7 +54,7 @@ export default function Token() {
         lamports,
         programId: TOKEN_PROGRAM_ID,
       }),
-      createInitializeAccountInstruction(associatedTokenKeyPair.publicKey, mintAddress, publicKey, TOKEN_PROGRAM_ID),
+      createInitializeAccountInstruction(associatedTokenKeyPair.publicKey, mint, publicKey, TOKEN_PROGRAM_ID),
     );
 
     const txHash = await sendTransaction(tx, connection, {
@@ -63,11 +65,11 @@ export default function Token() {
   };
 
   const getOrCreateAta = async () => {
-    if (!publicKey || !connection || !mintAddress) {
+    if (!publicKey || !connection || !mint) {
       return;
     }
 
-    const associatedToken = await getAssociatedTokenAddress(mintAddress, publicKey);
+    const associatedToken = await getAssociatedTokenAddress(mint, publicKey);
 
     let account: Account;
 
@@ -78,7 +80,7 @@ export default function Token() {
         // As this isn't atomic, it's possible others can create associated accounts meanwhile.
         try {
           const tx = new Transaction().add(
-            createAssociatedTokenAccountInstruction(publicKey, associatedToken, publicKey, mintAddress),
+            createAssociatedTokenAccountInstruction(publicKey, associatedToken, publicKey, mint),
           );
 
           const txHash = await sendTransaction(tx, connection);
@@ -103,7 +105,7 @@ export default function Token() {
       }
     }
 
-    if (!account.mint.equals(mintAddress)) throw new TokenInvalidMintError();
+    if (!account.mint.equals(mint)) throw new TokenInvalidMintError();
     if (!account.owner.equals(publicKey)) throw new TokenInvalidOwnerError();
 
     setAta(account.address);
@@ -112,7 +114,7 @@ export default function Token() {
   };
 
   const mintTokens = async () => {
-    if (!publicKey || !connection || !mintAddress || !mintAmount) {
+    if (!publicKey || !connection || !mint || !mintAmount) {
       return;
     }
 
@@ -125,10 +127,10 @@ export default function Token() {
       return;
     }
 
-    const associatedToken = await getAssociatedTokenAddress(mintAddress, publicKey);
+    const associatedToken = await getAssociatedTokenAddress(mint, publicKey);
 
     const transaction = new Transaction().add(
-      createMintToCheckedInstruction(mintAddress, associatedToken, publicKey, mintAmountNumber, TOKEN_DECIMALS),
+      createMintToCheckedInstruction(mint, associatedToken, publicKey, mintAmountNumber, TOKEN_DECIMALS),
     );
 
     const txHash = await sendTransaction(transaction, connection);
@@ -143,7 +145,7 @@ export default function Token() {
   };
 
   const burnTokens = async () => {
-    if (!publicKey || !connection || !mintAddress || !burnAmount) {
+    if (!publicKey || !connection || !mint || !burnAmount) {
       return;
     }
 
@@ -156,10 +158,10 @@ export default function Token() {
       return;
     }
 
-    const associatedToken = await getAssociatedTokenAddress(mintAddress, publicKey);
+    const associatedToken = await getAssociatedTokenAddress(mint, publicKey);
 
     const transaction = new Transaction().add(
-      createBurnCheckedInstruction(associatedToken, mintAddress, publicKey, burnAmountNumber, TOKEN_DECIMALS),
+      createBurnCheckedInstruction(associatedToken, mint, publicKey, burnAmountNumber, TOKEN_DECIMALS),
     );
 
     const txHash = await sendTransaction(transaction, connection);
@@ -174,7 +176,7 @@ export default function Token() {
   };
 
   const transferTokens = async () => {
-    if (!publicKey || !connection || !mintAddress || !senderAddress || !recipientAddress) {
+    if (!publicKey || !connection || !mint || !senderAddress || !recipientAddress) {
       return;
     }
   };
@@ -184,9 +186,13 @@ export default function Token() {
       <h3 className="text-2xl">Token</h3>
 
       <div className="flex flex-col gap-6">
-        <div>Balance: {} SOL</div>
-
         <CreateMint />
+
+        {mint && (
+          <>
+            <MintTokens />
+          </>
+        )}
 
         <div className="flex flex-col sm:flex-row gap-3">
           <button
@@ -221,7 +227,7 @@ export default function Token() {
             onChange={event => {
               setMintAmount(event.target.value);
             }}
-            className="max-w-96 border px-3 py-2 shadow-sm block w-full border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:bg-gray-50 disabled:text-gray-500"
+            className="w-full sm:max-w-72 border px-3 py-2 shadow-sm block w-full border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:bg-gray-50 disabled:text-gray-500"
           />
 
           <button
@@ -244,7 +250,7 @@ export default function Token() {
             onChange={event => {
               setBurnAmount(event.target.value);
             }}
-            className="max-w-96 border px-3 py-2 shadow-sm block w-full border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:bg-gray-50 disabled:text-gray-500"
+            className="w-full sm:max-w-72 border px-3 py-2 shadow-sm block w-full border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:bg-gray-50 disabled:text-gray-500"
           />
 
           <button
@@ -266,7 +272,7 @@ export default function Token() {
             onChange={event => {
               setSenderAddress(event.target.value);
             }}
-            className="max-w-96 border px-3 py-2 shadow-sm block w-full border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:bg-gray-50 disabled:text-gray-500"
+            className="w-full sm:max-w-72 border px-3 py-2 shadow-sm block w-full border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:bg-gray-50 disabled:text-gray-500"
           />
 
           <input
@@ -276,7 +282,7 @@ export default function Token() {
             onChange={event => {
               setRecipientAddress(event.target.value);
             }}
-            className="max-w-96 border px-3 py-2 shadow-sm block w-full border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:bg-gray-50 disabled:text-gray-500"
+            className="w-full sm:max-w-72 border px-3 py-2 shadow-sm block w-full border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:bg-gray-50 disabled:text-gray-500"
           />
 
           <button
@@ -297,7 +303,7 @@ export default function Token() {
             step={0.000000001}
             min={0}
             onChange={() => {}}
-            className="max-w-96 border px-3 py-2 shadow-sm block w-full border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:bg-gray-50 disabled:text-gray-500"
+            className="w-full sm:max-w-72 border px-3 py-2 shadow-sm block w-full border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:bg-gray-50 disabled:text-gray-500"
           />
 
           <button type="button" className="btn btn-sm btn-blue" onClick={async () => {}}>
