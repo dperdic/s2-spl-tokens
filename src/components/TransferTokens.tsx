@@ -69,8 +69,6 @@ export default function TransferTokens() {
     try {
       await getAccount(connection, recipientAta);
     } catch (error) {
-      console.log("no recipient ata");
-
       transaction.add(createAssociatedTokenAccountInstruction(publicKey, recipientAta, recipientPublicKey, mint));
     }
 
