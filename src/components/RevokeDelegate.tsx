@@ -30,7 +30,9 @@ export default function RevokeDelegate() {
       return;
     }
 
-    const transaction = new Transaction().add(createRevokeInstruction(delegate, publicKey));
+    const ata = await getAssociatedTokenAddress(mint, publicKey);
+
+    const transaction = new Transaction().add(createRevokeInstruction(ata, publicKey));
 
     const txHash = await sendTransaction(transaction, connection);
 
