@@ -84,7 +84,7 @@ export default function BurnTokens() {
         />
 
         <button type="button" className="btn btn-sm btn-blue" disabled={!tokenBalance} onClick={burnTokens}>
-          Burn
+          Burn tokens
         </button>
       </div>
     </div>

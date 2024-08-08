@@ -85,7 +85,7 @@ export default function MintTokens() {
       />
 
       <button type="button" className="btn btn-sm btn-blue" onClick={mintTokens}>
-        Mint
+        Mint tokens
       </button>
     </div>
   );
