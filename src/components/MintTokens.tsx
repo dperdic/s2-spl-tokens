@@ -8,12 +8,12 @@ import {
 import { Transaction } from "@solana/web3.js";
 import { useState } from "react";
 import { useAppStore } from "../state/store";
-import { TOKEN_DECIMALS } from "../utils/constants";
 import { confirmTransaction } from "../utils/functions";
 import { toast } from "react-toastify";
 
 export default function MintTokens() {
   const mint = useAppStore(state => state.mint);
+  const tokenDecimals = useAppStore(state => state.tokenDecimals);
   const setTokenBalance = useAppStore(state => state.setTokenBalance);
   const [mintAmount, setMintAmount] = useState<string>();
   const { connection } = useConnection();
@@ -38,7 +38,7 @@ export default function MintTokens() {
     let mintAmountBigInt: bigint;
 
     try {
-      mintAmountBigInt = BigInt(Number.parseFloat(mintAmount) * Math.pow(10, TOKEN_DECIMALS));
+      mintAmountBigInt = BigInt(Number.parseFloat(mintAmount) * Math.pow(10, tokenDecimals));
     } catch (error) {
       toast.error("Invalid mint amount");
       return;
@@ -54,7 +54,7 @@ export default function MintTokens() {
       transaction.add(createAssociatedTokenAccountInstruction(publicKey, ata, publicKey, mint));
     }
 
-    transaction.add(createMintToCheckedInstruction(mint, ata, publicKey, mintAmountBigInt, TOKEN_DECIMALS));
+    transaction.add(createMintToCheckedInstruction(mint, ata, publicKey, mintAmountBigInt, tokenDecimals));
 
     const txHash = await sendTransaction(transaction, connection);
 
@@ -67,7 +67,7 @@ export default function MintTokens() {
 
       const account = await getAccount(connection, ata);
 
-      const balance = Number(account.amount) / Math.pow(10, TOKEN_DECIMALS);
+      const balance = Number(account.amount) / Math.pow(10, tokenDecimals);
 
       setTokenBalance(balance);
     }

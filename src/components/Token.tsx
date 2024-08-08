@@ -17,12 +17,13 @@ import {
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { Keypair, SystemProgram, Transaction } from "@solana/web3.js";
 import { useState } from "react";
-import { TOKEN_DECIMALS } from "../utils/constants";
+
 import { confirmTransaction } from "../utils/functions";
 import CreateMint from "./CreateMint";
 import { useAppStore } from "../state/store";
 import MintTokens from "./MintTokens";
 import BurnTokens from "./BurnTokens";
+import TransferTokens from "./TransferTokens";
 
 export default function Token() {
   const mint = useAppStore(state => state.mint);
@@ -111,67 +112,67 @@ export default function Token() {
     console.log(account);
   };
 
-  const mintTokens = async () => {
-    if (!publicKey || !connection || !mint || !mintAmount) {
-      return;
-    }
+  // const mintTokens = async () => {
+  //   if (!publicKey || !connection || !mint || !mintAmount) {
+  //     return;
+  //   }
 
-    let mintAmountNumber: number;
+  //   let mintAmountNumber: number;
 
-    try {
-      mintAmountNumber = Number.parseInt(mintAmount);
-    } catch (error) {
-      console.log("Invalid mint amount");
-      return;
-    }
+  //   try {
+  //     mintAmountNumber = Number.parseInt(mintAmount);
+  //   } catch (error) {
+  //     console.log("Invalid mint amount");
+  //     return;
+  //   }
 
-    const associatedToken = await getAssociatedTokenAddress(mint, publicKey);
+  //   const associatedToken = await getAssociatedTokenAddress(mint, publicKey);
 
-    const transaction = new Transaction().add(
-      createMintToCheckedInstruction(mint, associatedToken, publicKey, mintAmountNumber, TOKEN_DECIMALS),
-    );
+  //   const transaction = new Transaction().add(
+  //     createMintToCheckedInstruction(mint, associatedToken, publicKey, mintAmountNumber, TOKEN_DECIMALS),
+  //   );
 
-    const txHash = await sendTransaction(transaction, connection);
+  //   const txHash = await sendTransaction(transaction, connection);
 
-    await confirmTransaction(connection, txHash);
+  //   await confirmTransaction(connection, txHash);
 
-    console.log("Transaction hash: ", txHash);
+  //   console.log("Transaction hash: ", txHash);
 
-    const account = await getAccount(connection, associatedToken);
+  //   const account = await getAccount(connection, associatedToken);
 
-    console.log("Balance: ", account.amount);
-  };
+  //   console.log("Balance: ", account.amount);
+  // };
 
-  const burnTokens = async () => {
-    if (!publicKey || !connection || !mint || !burnAmount) {
-      return;
-    }
+  // const burnTokens = async () => {
+  //   if (!publicKey || !connection || !mint || !burnAmount) {
+  //     return;
+  //   }
 
-    let burnAmountNumber: number;
+  //   let burnAmountNumber: number;
 
-    try {
-      burnAmountNumber = Number.parseInt(burnAmount);
-    } catch (error) {
-      console.log("Invalid burn amount");
-      return;
-    }
+  //   try {
+  //     burnAmountNumber = Number.parseInt(burnAmount);
+  //   } catch (error) {
+  //     console.log("Invalid burn amount");
+  //     return;
+  //   }
 
-    const associatedToken = await getAssociatedTokenAddress(mint, publicKey);
+  //   const associatedToken = await getAssociatedTokenAddress(mint, publicKey);
 
-    const transaction = new Transaction().add(
-      createBurnCheckedInstruction(associatedToken, mint, publicKey, burnAmountNumber, TOKEN_DECIMALS),
-    );
+  //   const transaction = new Transaction().add(
+  //     createBurnCheckedInstruction(associatedToken, mint, publicKey, burnAmountNumber, TOKEN_DECIMALS),
+  //   );
 
-    const txHash = await sendTransaction(transaction, connection);
+  //   const txHash = await sendTransaction(transaction, connection);
 
-    await confirmTransaction(connection, txHash);
+  //   await confirmTransaction(connection, txHash);
 
-    console.log("Transaction hash: ", txHash);
+  //   console.log("Transaction hash: ", txHash);
 
-    const account = await getAccount(connection, associatedToken);
+  //   const account = await getAccount(connection, associatedToken);
 
-    console.log("Balance: ", account.amount);
-  };
+  //   console.log("Balance: ", account.amount);
+  // };
 
   const transferTokens = async () => {
     if (!publicKey || !connection || !mint || !senderAddress || !recipientAddress) {
@@ -190,10 +191,11 @@ export default function Token() {
           <>
             <MintTokens />
             <BurnTokens />
+            <TransferTokens />
           </>
         )}
 
-        <div className="flex flex-col sm:flex-row gap-3">
+        {/* <div className="flex flex-col sm:flex-row gap-3">
           <button
             type="button"
             className="btn btn-sm btn-blue"
@@ -261,9 +263,9 @@ export default function Token() {
           >
             Burn
           </button>
-        </div>
+        </div> */}
 
-        <div className="flex flex-col sm:flex-row gap-3">
+        {/* <div className="flex flex-col sm:flex-row gap-3">
           <input
             type="string"
             placeholder="Sender address"
@@ -293,7 +295,7 @@ export default function Token() {
           >
             Transfer tokens
           </button>
-        </div>
+        </div> */}
 
         {/* <div className="flex flex-col sm:flex-row gap-3">
           <input

@@ -3,7 +3,6 @@ import { getAssociatedTokenAddress, getAccount, createBurnCheckedInstruction } f
 import { Transaction } from "@solana/web3.js";
 import { useState } from "react";
 import { useAppStore } from "../state/store";
-import { TOKEN_DECIMALS } from "../utils/constants";
 import { confirmTransaction } from "../utils/functions";
 import { toast } from "react-toastify";
 
@@ -11,6 +10,7 @@ export default function BurnTokens() {
   const mint = useAppStore(state => state.mint);
   const tokenBalance = useAppStore(state => state.tokenBalance);
   const setTokenBalance = useAppStore(state => state.setTokenBalance);
+  const tokenDecimals = useAppStore(state => state.tokenDecimals);
   const [burnAmount, setBurnAmount] = useState<string>();
   const { connection } = useConnection();
   const { publicKey, sendTransaction } = useWallet();
@@ -34,7 +34,7 @@ export default function BurnTokens() {
     let burnAmountBigInt: bigint;
 
     try {
-      burnAmountBigInt = BigInt(Number.parseFloat(burnAmount) * Math.pow(10, TOKEN_DECIMALS));
+      burnAmountBigInt = BigInt(Number.parseFloat(burnAmount) * Math.pow(10, tokenDecimals));
     } catch (error) {
       toast.error("Invalid burn amount");
       return;
@@ -43,7 +43,7 @@ export default function BurnTokens() {
     const ata = await getAssociatedTokenAddress(mint, publicKey);
 
     const transaction = new Transaction().add(
-      createBurnCheckedInstruction(ata, mint, publicKey, burnAmountBigInt, TOKEN_DECIMALS),
+      createBurnCheckedInstruction(ata, mint, publicKey, burnAmountBigInt, tokenDecimals),
     );
 
     const txHash = await sendTransaction(transaction, connection);
@@ -57,7 +57,7 @@ export default function BurnTokens() {
 
       const account = await getAccount(connection, ata);
 
-      const balance = Number(account.amount) / Math.pow(10, TOKEN_DECIMALS);
+      const balance = Number(account.amount) / Math.pow(10, tokenDecimals);
 
       setTokenBalance(balance);
     }
