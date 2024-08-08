@@ -12,9 +12,7 @@ import { toast } from "react-toastify";
 import { useState } from "react";
 
 export default function CreateMint() {
-  const mint = useAppStore(state => state.mint);
   const setMint = useAppStore(state => state.setMint);
-  const tokenBalance = useAppStore(state => state.tokenBalance);
   const setTokenDecimals = useAppStore(state => state.setTokenDecimals);
   const [localTokenDecimals, setLocalTokenDecimals] = useState<string>("");
   const { publicKey, sendTransaction } = useWallet();
@@ -83,30 +81,23 @@ export default function CreateMint() {
 
   return (
     <div className="flex flex-col gap-3">
-      {mint ? (
-        <div>
-          <div className="break-words">Mint address: {mint?.toBase58()}</div>
-          <div className="break-words">Token balance: {tokenBalance}</div>
-        </div>
-      ) : (
-        <div className="flex flex-col sm:flex-row gap-3">
-          <input
-            type="number"
-            placeholder="Token decimals"
-            step={1}
-            min={0}
-            max={9}
-            value={localTokenDecimals}
-            onChange={event => {
-              setLocalTokenDecimals(event.target.value);
-            }}
-            className="w-full sm:max-w-72 border px-3 py-2 shadow-sm block w-full border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:bg-gray-50 disabled:text-gray-500"
-          />
-          <button type="button" className="btn btn-sm btn-blue" onClick={createTokenMint}>
-            Create mint
-          </button>
-        </div>
-      )}
+      <div className="flex flex-col sm:flex-row gap-3">
+        <input
+          type="number"
+          placeholder="Token decimals"
+          step={1}
+          min={0}
+          max={9}
+          value={localTokenDecimals}
+          onChange={event => {
+            setLocalTokenDecimals(event.target.value);
+          }}
+          className="w-full sm:max-w-72 border px-3 py-2 shadow-sm block w-full border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:bg-gray-50 disabled:text-gray-500"
+        />
+        <button type="button" className="btn btn-sm btn-blue" onClick={createTokenMint}>
+          Create mint
+        </button>
+      </div>
     </div>
   );
 }
