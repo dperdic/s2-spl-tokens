@@ -15,7 +15,9 @@ export default function DelegateTokens() {
   const mint = useAppStore(state => state.mint);
   const tokenDecimals = useAppStore(state => state.tokenDecimals);
   const tokenBalance = useAppStore(state => state.tokenBalance);
-  const setTokenBalance = useAppStore(state => state.setTokenBalance);
+  const setDelegate = useAppStore(state => state.setDelegate);
+  const setDelegatedAmount = useAppStore(state => state.setDelegatedAmount);
+
   const [localDelegateAddress, setLocalDelegateAddress] = useState<string>("");
   const [localDelegateAmount, setLocalDelegateAmount] = useState<string>("");
 
@@ -85,9 +87,10 @@ export default function DelegateTokens() {
     } else {
       toast.info(`Transaction hash: ${txHash}`);
 
-      const tokenAmount = await connection.getTokenAccountBalance(senderAta);
+      const account = await getAccount(connection, senderAta);
 
-      setTokenBalance(tokenAmount.value.uiAmount ?? 0);
+      setDelegate(account.delegate ?? undefined);
+      setDelegatedAmount(account.delegatedAmount);
     }
   };
 
