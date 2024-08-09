@@ -99,7 +99,7 @@ export default function TokenAccount() {
     const transaction = new Transaction();
 
     if (tokenBalance) {
-      const burnAmountBigInt = BigInt(tokenBalance * Math.pow(10, tokenDecimals));
+      const burnAmountBigInt = BigInt(Math.round(tokenBalance * Math.pow(10, tokenDecimals)));
 
       transaction.add(createBurnCheckedInstruction(ata, mint, publicKey, burnAmountBigInt, tokenDecimals));
     }

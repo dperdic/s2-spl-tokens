@@ -74,7 +74,7 @@ export default function DelegateTokens() {
     let delegateAmountBigInt: bigint;
 
     try {
-      delegateAmountBigInt = BigInt(Number(delegateAmount) * Math.pow(10, tokenDecimals));
+      delegateAmountBigInt = BigInt(Math.round(Number(delegateAmount) * Math.pow(10, tokenDecimals)));
     } catch (error) {
       toast.error("Invalid mint amount");
       setTransactionInProgress(false);
@@ -110,6 +110,9 @@ export default function DelegateTokens() {
 
       setDelegate(account.delegate ?? undefined);
       setDelegatedAmount(account.delegatedAmount);
+
+      setLocalDelegateAddress("");
+      setDelegateAmount("");
     }
 
     setTransactionInProgress(false);

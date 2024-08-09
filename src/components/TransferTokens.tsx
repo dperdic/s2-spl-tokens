@@ -77,7 +77,7 @@ export default function TransferTokens() {
     let transferAmountBigInt: bigint;
 
     try {
-      transferAmountBigInt = BigInt(Number(transferAmount) * Math.pow(10, tokenDecimals));
+      transferAmountBigInt = BigInt(Math.round(Number(transferAmount) * Math.pow(10, tokenDecimals)));
     } catch (error) {
       toast.error("Invalid mint amount");
       return;
@@ -109,6 +109,8 @@ export default function TransferTokens() {
       const tokenAmount = await connection.getTokenAccountBalance(ata);
 
       setTokenBalance(tokenAmount.value.uiAmount ?? 0);
+      setRecipientAddress("");
+      setTransferAmount("");
     }
 
     setTransactionInProgress(false);

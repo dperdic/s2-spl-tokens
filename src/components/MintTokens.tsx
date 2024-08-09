@@ -51,7 +51,7 @@ export default function MintTokens() {
     let mintAmountBigInt: bigint;
 
     try {
-      mintAmountBigInt = BigInt(Number(mintAmount) * Math.pow(10, tokenDecimals));
+      mintAmountBigInt = BigInt(Math.round(Number(mintAmount) * Math.pow(10, tokenDecimals)));
     } catch (error) {
       toast.error("Invalid mint amount");
       setTransactionInProgress(false);
@@ -75,9 +75,9 @@ export default function MintTokens() {
       const tokenAmount = await connection.getTokenAccountBalance(ata);
 
       setTokenBalance(tokenAmount.value.uiAmount ?? 0);
+      setMintAmount("");
     }
 
-    setMintAmount("");
     setTransactionInProgress(false);
   };
 

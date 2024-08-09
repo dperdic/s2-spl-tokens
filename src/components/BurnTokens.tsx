@@ -52,7 +52,7 @@ export default function BurnTokens() {
     let burnAmountBigInt: bigint;
 
     try {
-      burnAmountBigInt = BigInt(Number(burnAmount) * Math.pow(10, tokenDecimals));
+      burnAmountBigInt = BigInt(Math.round(Number(burnAmount) * Math.pow(10, tokenDecimals)));
     } catch (error) {
       toast.error("Invalid burn amount");
       setTransactionInProgress(false);
@@ -85,9 +85,9 @@ export default function BurnTokens() {
       const tokenAmount = await connection.getTokenAccountBalance(ata);
 
       setTokenBalance(tokenAmount.value.uiAmount ?? 0);
+      setBurnAmount("");
     }
 
-    setBurnAmount("");
     setTransactionInProgress(false);
   };
 
