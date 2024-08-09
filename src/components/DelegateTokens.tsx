@@ -65,7 +65,7 @@ export default function DelegateTokens() {
     }
 
     if (!delegateAmount) {
-      toast.error("Invalid burn amount");
+      toast.error("Invalid delegate amount");
       setTransactionInProgress(false);
 
       return;
@@ -76,7 +76,7 @@ export default function DelegateTokens() {
     try {
       delegateAmountBigInt = BigInt(Math.round(Number(delegateAmount) * Math.pow(10, tokenDecimals)));
     } catch (error) {
-      toast.error("Invalid mint amount");
+      toast.error("Invalid delegate amount");
       setTransactionInProgress(false);
 
       return;

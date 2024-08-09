@@ -68,7 +68,7 @@ export default function TransferTokens() {
     }
 
     if (!transferAmount) {
-      toast.error("Invalid burn amount");
+      toast.error("Invalid transfer amount");
       setTransactionInProgress(false);
 
       return;
@@ -79,7 +79,7 @@ export default function TransferTokens() {
     try {
       transferAmountBigInt = BigInt(Math.round(Number(transferAmount) * Math.pow(10, tokenDecimals)));
     } catch (error) {
-      toast.error("Invalid mint amount");
+      toast.error("Invalid transfer amount");
       return;
     }
 
