@@ -1,6 +1,4 @@
-import { getAssociatedTokenAddress } from "@solana/spl-token";
-import { Connection, PublicKey, RpcResponseAndContext, SignatureResult } from "@solana/web3.js";
-import { toast } from "react-toastify";
+import { Connection, RpcResponseAndContext, SignatureResult } from "@solana/web3.js";
 
 export const confirmTransaction = async (
   connection: Connection,
@@ -16,31 +14,4 @@ export const confirmTransaction = async (
     },
     "confirmed",
   );
-};
-
-export const getTokenBalance = async (connection: Connection, mint: PublicKey, walletAddress: PublicKey) => {
-  if (!connection) {
-    toast.error("Not connected to the rpc endpoint");
-    return;
-  }
-
-  if (!mint) {
-    toast.error("Mint address not provided");
-    return;
-  }
-
-  if (!walletAddress) {
-    toast.error("Wallet is not connected");
-    return;
-  }
-
-  const ata = await getAssociatedTokenAddress(mint, walletAddress);
-
-  try {
-    const balance = await connection.getTokenAccountBalance(ata);
-
-    return balance.value.uiAmountString;
-  } catch (error) {
-    toast.error(`An error occured while fetching token balance: ${error}`);
-  }
 };
