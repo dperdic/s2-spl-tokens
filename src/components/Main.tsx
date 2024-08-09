@@ -8,14 +8,22 @@ export default function Main() {
   const { publicKey } = useWallet();
 
   return (
-    <main className="w-full flex-grow sm:px-16 px-8 py-8 mt-18">
+    <main
+      className={`w-full flex-grow flex-grow sm:px-16 px-8 py-8 mt-18 ${
+        !publicKey && "flex items-center justify-center"
+      }}`}
+    >
       {publicKey ? (
         <div className="flex flex-col gap-12">
           <Airdrop />
           <Token />
         </div>
       ) : (
-        <div>Please connect a wallet</div>
+        <div className="w-full max-w-2xl mx-auto">
+          <div className="grid gap-4 p-8 bg-white rounded-md shadow w-full text-center">
+            <h2 className="text-xl font-semibold">Connect a wallet to continue</h2>
+          </div>
+        </div>
       )}
 
       <ToastContainer
