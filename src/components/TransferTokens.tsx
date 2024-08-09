@@ -12,56 +12,77 @@ import {
 import { confirmTransaction } from "../utils/functions";
 
 export default function TransferTokens() {
+  const transactionInProgress = useAppStore(state => state.transactionInProgress);
+  const setTransactionInProgress = useAppStore(state => state.setTransactionInProgress);
   const mint = useAppStore(state => state.mint);
+  const ata = useAppStore(state => state.ata);
   const tokenBalance = useAppStore(state => state.tokenBalance);
   const setTokenBalance = useAppStore(state => state.setTokenBalance);
   const tokenDecimals = useAppStore(state => state.tokenDecimals);
 
-  const [localRecipientAddress, setLocalRecipientAddress] = useState<string>("");
-  const [localTransferAmount, setLocalTransferAmount] = useState<string>("");
+  const [recipientAddress, setRecipientAddress] = useState<string>("");
+  const [transferAmount, setTransferAmount] = useState<string>("");
   const { connection } = useConnection();
   const { publicKey, sendTransaction } = useWallet();
 
   const transferTokens = async () => {
+    setTransactionInProgress(true);
+
     if (!publicKey || !connection) {
       toast.error("Wallet not connected");
+      setTransactionInProgress(false);
+
       return;
     }
 
     if (!mint) {
       toast.error("No mint address provided, create a new mint");
+      setTransactionInProgress(false);
+
       return;
     }
 
-    if (!localRecipientAddress) {
+    if (!ata) {
+      toast.error("No associated token account");
+      setTransactionInProgress(false);
+
+      return;
+    }
+
+    if (!recipientAddress) {
       toast.error("No recipient address provided");
+      setTransactionInProgress(false);
+
       return;
     }
 
     let recipientPublicKey: PublicKey;
 
     try {
-      recipientPublicKey = new PublicKey(localRecipientAddress);
+      recipientPublicKey = new PublicKey(recipientAddress);
     } catch (error) {
       toast.error("Invalid recipient address");
+      setTransactionInProgress(false);
+
       return;
     }
 
-    if (!localTransferAmount) {
+    if (!transferAmount) {
       toast.error("Invalid burn amount");
+      setTransactionInProgress(false);
+
       return;
     }
 
     let transferAmountBigInt: bigint;
 
     try {
-      transferAmountBigInt = BigInt(Number.parseFloat(localTransferAmount) * Math.pow(10, tokenDecimals));
+      transferAmountBigInt = BigInt(Number(transferAmount) * Math.pow(10, tokenDecimals));
     } catch (error) {
       toast.error("Invalid mint amount");
       return;
     }
 
-    const senderAta = await getAssociatedTokenAddress(mint, publicKey);
     const recipientAta = await getAssociatedTokenAddress(mint, recipientPublicKey);
 
     const transaction = new Transaction();
@@ -73,7 +94,7 @@ export default function TransferTokens() {
     }
 
     transaction.add(
-      createTransferCheckedInstruction(senderAta, mint, recipientAta, publicKey, transferAmountBigInt, tokenDecimals),
+      createTransferCheckedInstruction(ata, mint, recipientAta, publicKey, transferAmountBigInt, tokenDecimals),
     );
 
     const txHash = await sendTransaction(transaction, connection);
@@ -85,10 +106,12 @@ export default function TransferTokens() {
     } else {
       toast.info(`Transaction hash: ${txHash}`);
 
-      const tokenAmount = await connection.getTokenAccountBalance(senderAta);
+      const tokenAmount = await connection.getTokenAccountBalance(ata);
 
       setTokenBalance(tokenAmount.value.uiAmount ?? 0);
     }
+
+    setTransactionInProgress(false);
   };
 
   return (
@@ -96,9 +119,9 @@ export default function TransferTokens() {
       <input
         type="string"
         placeholder="Recipient address"
-        value={localRecipientAddress}
+        value={recipientAddress}
         onChange={event => {
-          setLocalRecipientAddress(event.target.value);
+          setRecipientAddress(event.target.value);
         }}
         className="w-full border px-3 py-2 shadow-sm block w-full border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:bg-gray-50 disabled:text-gray-500"
       />
@@ -106,16 +129,22 @@ export default function TransferTokens() {
       <input
         type="number"
         placeholder="Amount"
-        step={0.000000001}
+        step={Math.pow(10, -1 * tokenDecimals)}
         min={0}
         max={tokenBalance}
+        value={transferAmount}
         onChange={event => {
-          setLocalTransferAmount(event.target.value);
+          setTransferAmount(event.target.value);
         }}
         className="w-full border px-3 py-2 shadow-sm block w-full border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:bg-gray-50 disabled:text-gray-500"
       />
 
-      <button type="button" className="btn btn-md btn-blue" onClick={transferTokens}>
+      <button
+        type="button"
+        className="btn btn-md btn-blue"
+        disabled={transactionInProgress || !ata || !transferAmount || !recipientAddress}
+        onClick={transferTokens}
+      >
         Transfer tokens
       </button>
     </div>
