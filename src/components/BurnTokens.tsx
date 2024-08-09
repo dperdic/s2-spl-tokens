@@ -1,5 +1,5 @@
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
-import { getAssociatedTokenAddress, createBurnCheckedInstruction, getAccount } from "@solana/spl-token";
+import { createBurnCheckedInstruction, getAccount } from "@solana/spl-token";
 import { Transaction } from "@solana/web3.js";
 import { useState } from "react";
 import { useAppStore } from "../state/store";
@@ -10,6 +10,7 @@ export default function BurnTokens() {
   const transactionInProgress = useAppStore(state => state.transactionInProgress);
   const setTransactionInProgress = useAppStore(state => state.setTransactionInProgress);
   const mint = useAppStore(state => state.mint);
+  const ata = useAppStore(state => state.ata);
   const tokenBalance = useAppStore(state => state.tokenBalance);
   const setTokenBalance = useAppStore(state => state.setTokenBalance);
   const tokenDecimals = useAppStore(state => state.tokenDecimals);
@@ -34,6 +35,13 @@ export default function BurnTokens() {
       return;
     }
 
+    if (!ata) {
+      toast.error("You don't have an associated token account for this token");
+      setTransactionInProgress(false);
+
+      return;
+    }
+
     if (!burnAmount) {
       toast.error("Invalid burn amount");
       setTransactionInProgress(false);
@@ -44,7 +52,7 @@ export default function BurnTokens() {
     let burnAmountBigInt: bigint;
 
     try {
-      burnAmountBigInt = BigInt(Number.parseFloat(burnAmount) * Math.pow(10, tokenDecimals));
+      burnAmountBigInt = BigInt(Number(burnAmount) * Math.pow(10, tokenDecimals));
     } catch (error) {
       toast.error("Invalid burn amount");
       setTransactionInProgress(false);
@@ -52,12 +60,10 @@ export default function BurnTokens() {
       return;
     }
 
-    const ata = await getAssociatedTokenAddress(mint, publicKey);
-
     try {
       await getAccount(connection, ata);
     } catch (error) {
-      toast.error("You don't have an associated token account for this token, mint a token to create one");
+      toast.error("You don't have an associated token account for this token");
       setTransactionInProgress(false);
 
       return;
@@ -91,7 +97,7 @@ export default function BurnTokens() {
         <input
           type="number"
           placeholder="Amount"
-          step={0.000000001}
+          step={Math.pow(10, -1 * tokenDecimals)}
           min={0}
           max={tokenBalance}
           value={burnAmount}
@@ -104,7 +110,7 @@ export default function BurnTokens() {
         <button
           type="button"
           className="btn btn-md btn-blue"
-          disabled={transactionInProgress || !tokenBalance || !burnAmount}
+          disabled={transactionInProgress || !ata || !tokenBalance || !burnAmount}
           onClick={burnTokens}
         >
           Burn tokens
