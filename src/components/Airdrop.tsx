@@ -3,8 +3,11 @@ import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { confirmTransaction } from "../utils/functions";
 import { toast } from "react-toastify";
+import { useAppStore } from "../state/store";
 
 export default function Airdrop() {
+  const transactionInProgress = useAppStore(state => state.transactionInProgress);
+  const setTransactionInProgress = useAppStore(state => state.setTransactionInProgress);
   const [balance, setBalance] = useState(0);
   const [airdropAmount, setAirdropAmount] = useState(0);
   const { connection } = useConnection();
@@ -31,7 +34,12 @@ export default function Airdrop() {
   }, [connection, publicKey]);
 
   const requestAirdrop = async () => {
-    if (!publicKey) {
+    setTransactionInProgress(true);
+
+    if (!publicKey || !connection) {
+      toast.error("Wallet not connected");
+      setTransactionInProgress(false);
+
       return;
     }
 
@@ -48,6 +56,8 @@ export default function Airdrop() {
     } catch (error) {
       toast.error(error as string);
     }
+
+    setTransactionInProgress(false);
   };
 
   return (
@@ -69,7 +79,12 @@ export default function Airdrop() {
             className="w-full border px-3 py-2 shadow-sm block w-full border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:bg-gray-50 disabled:text-gray-500"
           />
 
-          <button type="button" className="btn btn-md btn-blue" onClick={requestAirdrop}>
+          <button
+            type="button"
+            className="btn btn-md btn-blue"
+            disabled={transactionInProgress || !airdropAmount}
+            onClick={requestAirdrop}
+          >
             Airdrop
           </button>
         </div>

@@ -7,12 +7,14 @@ export interface AppStore {
   tokenBalance: number;
   delegate: PublicKey | undefined;
   delegatedAmount: bigint;
+  transactionInProgress: boolean;
 
   setMint: (mint: PublicKey) => void;
   setTokenDecimals: (decimals: number) => void;
   setTokenBalance: (balance: number) => void;
   setDelegate: (delegate: PublicKey | undefined) => void;
   setDelegatedAmount: (delegatedAmount: bigint) => void;
+  setTransactionInProgress: (inProgress: boolean) => void;
 }
 
 export const useAppStore = create<AppStore>(set => ({
@@ -21,10 +23,12 @@ export const useAppStore = create<AppStore>(set => ({
   tokenBalance: 0,
   delegate: undefined,
   delegatedAmount: 0n,
+  transactionInProgress: false,
 
   setMint: mint => set(() => ({ mint: mint })),
   setTokenDecimals: decimals => set(() => ({ tokenDecimals: decimals })),
   setTokenBalance: balance => set(() => ({ tokenBalance: balance })),
   setDelegate: delegate => set(() => ({ delegate: delegate })),
   setDelegatedAmount: delegatedAmount => set(() => ({ delegatedAmount: delegatedAmount })),
+  setTransactionInProgress: inProgress => set(() => ({ transactionInProgress: inProgress })),
 }));
