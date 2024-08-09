@@ -9,7 +9,7 @@ export default function Airdrop() {
   const transactionInProgress = useAppStore(state => state.transactionInProgress);
   const setTransactionInProgress = useAppStore(state => state.setTransactionInProgress);
   const [balance, setBalance] = useState(0);
-  const [airdropAmount, setAirdropAmount] = useState(0);
+  const [airdropAmount, setAirdropAmount] = useState("");
   const { connection } = useConnection();
   const { publicKey } = useWallet();
 
@@ -43,8 +43,19 @@ export default function Airdrop() {
       return;
     }
 
+    let amount: number;
+
     try {
-      const tx = await connection.requestAirdrop(publicKey, airdropAmount * LAMPORTS_PER_SOL);
+      amount = Number.parseFloat(airdropAmount);
+    } catch (error) {
+      toast.error("Invalid airdrop amount");
+      setTransactionInProgress(false);
+
+      return;
+    }
+
+    try {
+      const tx = await connection.requestAirdrop(publicKey, amount * LAMPORTS_PER_SOL);
 
       const confirmation = await confirmTransaction(connection, tx);
 
@@ -57,6 +68,7 @@ export default function Airdrop() {
       toast.error(error as string);
     }
 
+    setAirdropAmount("");
     setTransactionInProgress(false);
   };
 
@@ -73,8 +85,9 @@ export default function Airdrop() {
             placeholder="Amount"
             step={0.000000001}
             min={0}
+            value={airdropAmount}
             onChange={event => {
-              setAirdropAmount(Number.parseFloat(event.target.value));
+              setAirdropAmount(event.target.value);
             }}
             className="w-full border px-3 py-2 shadow-sm block w-full border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:bg-gray-50 disabled:text-gray-500"
           />
