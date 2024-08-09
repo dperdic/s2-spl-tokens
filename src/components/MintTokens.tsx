@@ -1,10 +1,5 @@
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
-import {
-  getAssociatedTokenAddress,
-  createMintToCheckedInstruction,
-  getAccount,
-  createAssociatedTokenAccountInstruction,
-} from "@solana/spl-token";
+import { createMintToCheckedInstruction } from "@solana/spl-token";
 import { Transaction } from "@solana/web3.js";
 import { useState } from "react";
 import { useAppStore } from "../state/store";
@@ -15,9 +10,10 @@ export default function MintTokens() {
   const transactionInProgress = useAppStore(state => state.transactionInProgress);
   const setTransactionInProgress = useAppStore(state => state.setTransactionInProgress);
   const mint = useAppStore(state => state.mint);
+  const ata = useAppStore(state => state.ata);
   const tokenDecimals = useAppStore(state => state.tokenDecimals);
   const setTokenBalance = useAppStore(state => state.setTokenBalance);
-  const [mintAmount, setMintAmount] = useState<string>();
+  const [mintAmount, setMintAmount] = useState<string>("");
   const { connection } = useConnection();
   const { publicKey, sendTransaction } = useWallet();
 
@@ -38,6 +34,13 @@ export default function MintTokens() {
       return;
     }
 
+    if (!ata) {
+      toast.error("You don't have an associated token account for this token");
+      setTransactionInProgress(false);
+
+      return;
+    }
+
     if (!mintAmount) {
       toast.error("Invalid mint amount");
       setTransactionInProgress(false);
@@ -48,7 +51,7 @@ export default function MintTokens() {
     let mintAmountBigInt: bigint;
 
     try {
-      mintAmountBigInt = BigInt(Number.parseFloat(mintAmount) * Math.pow(10, tokenDecimals));
+      mintAmountBigInt = BigInt(Number(mintAmount) * Math.pow(10, tokenDecimals));
     } catch (error) {
       toast.error("Invalid mint amount");
       setTransactionInProgress(false);
@@ -56,17 +59,9 @@ export default function MintTokens() {
       return;
     }
 
-    const ata = await getAssociatedTokenAddress(mint, publicKey);
-
-    const transaction = new Transaction();
-
-    try {
-      await getAccount(connection, ata);
-    } catch (error) {
-      transaction.add(createAssociatedTokenAccountInstruction(publicKey, ata, publicKey, mint));
-    }
-
-    transaction.add(createMintToCheckedInstruction(mint, ata, publicKey, mintAmountBigInt, tokenDecimals));
+    const transaction = new Transaction().add(
+      createMintToCheckedInstruction(mint, ata, publicKey, mintAmountBigInt, tokenDecimals),
+    );
 
     const txHash = await sendTransaction(transaction, connection);
 
@@ -81,6 +76,7 @@ export default function MintTokens() {
 
       setTokenBalance(tokenAmount.value.uiAmount ?? 0);
     }
+
     setMintAmount("");
     setTransactionInProgress(false);
   };
@@ -90,7 +86,7 @@ export default function MintTokens() {
       <input
         type="number"
         placeholder="Amount"
-        step={0.000000001}
+        step={Math.pow(10, -1 * tokenDecimals)}
         min={0}
         value={mintAmount}
         onChange={event => {
@@ -102,7 +98,7 @@ export default function MintTokens() {
       <button
         type="button"
         className="btn btn-md btn-blue"
-        disabled={transactionInProgress || !mintAmount}
+        disabled={transactionInProgress || !ata || !mintAmount}
         onClick={mintTokens}
       >
         Mint tokens
