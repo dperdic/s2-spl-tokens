@@ -10,7 +10,7 @@ export default function Main() {
   return (
     <main className="w-full flex-grow sm:px-16 px-8 py-8 mt-18">
       {publicKey ? (
-        <div className="flex flex-col gap-8">
+        <div className="flex flex-col gap-12">
           <Airdrop />
           <Token />
         </div>
