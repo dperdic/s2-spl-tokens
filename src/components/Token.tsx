@@ -5,6 +5,7 @@ import BurnTokens from "./BurnTokens";
 import TransferTokens from "./TransferTokens";
 import DelegateTokens from "./DelegateTokens";
 import RevokeDelegate from "./RevokeDelegate";
+import CloseTokenAccount from "./CloseTokenAccount";
 
 export default function Token() {
   const mint = useAppStore(state => state.mint);
@@ -34,6 +35,7 @@ export default function Token() {
             <BurnTokens />
             <TransferTokens />
             <DelegateTokens />
+            <CloseTokenAccount />
             {delegate && <RevokeDelegate />}
           </>
         ) : (
