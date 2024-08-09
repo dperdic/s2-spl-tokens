@@ -46,7 +46,7 @@ export default function Airdrop() {
     let amount: number;
 
     try {
-      amount = Number.parseFloat(airdropAmount);
+      amount = Number(airdropAmount);
     } catch (error) {
       toast.error("Invalid airdrop amount");
       setTransactionInProgress(false);
@@ -73,7 +73,7 @@ export default function Airdrop() {
   };
 
   return (
-    <div className="max-w-2xl w-full mx-auto">
+    <div className="max-w-3xl w-full mx-auto">
       <h3 className="text-xl font-semibold pb-4">SOL</h3>
 
       <div className="grid gap-4 p-4 bg-white rounded-md shadow w-full">
@@ -83,7 +83,7 @@ export default function Airdrop() {
           <input
             type="number"
             placeholder="Amount"
-            step={0.000000001}
+            step={Math.pow(10, -1 * 9)}
             min={0}
             value={airdropAmount}
             onChange={event => {
