@@ -69,7 +69,7 @@ export default function CloseTokenAccount() {
 
   return (
     <div className="flex flex-col gap-3">
-      <button type="button" className="btn btn-sm btn-blue" onClick={closeTokenAccount}>
+      <button type="button" className="btn btn-md btn-blue" onClick={closeTokenAccount}>
         Close token account
       </button>
     </div>

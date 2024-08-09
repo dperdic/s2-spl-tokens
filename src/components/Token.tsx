@@ -20,7 +20,7 @@ export default function Token() {
 
   return (
     <div className="flex flex-col gap-4 max-w-192">
-      <h3 className="text-2xl">Token</h3>
+      <h3 className="text-2xl">SPL Token</h3>
 
       <div className="flex flex-col gap-6">
         {mint ? (

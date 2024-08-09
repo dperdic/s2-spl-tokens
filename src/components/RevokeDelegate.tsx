@@ -54,7 +54,7 @@ export default function RevokeDelegate() {
 
   return (
     <div className="flex flex-col gap-3">
-      <button type="button" className="btn btn-sm btn-blue" disabled={!delegate} onClick={revokeDelegate}>
+      <button type="button" className="btn btn-md btn-blue" disabled={!delegate} onClick={revokeDelegate}>
         Revoke delegate
       </button>
     </div>
