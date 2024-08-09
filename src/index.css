@@ -12,7 +12,7 @@ body {
 }
 
 .btn {
-  @apply items-center border border-transparent font-medium whitespace-nowrap focus:outline-none;
+  @apply items-center border border-transparent font-medium whitespace-nowrap focus:outline-none disabled:opacity-85;
 }
 
 .btn-sm {
