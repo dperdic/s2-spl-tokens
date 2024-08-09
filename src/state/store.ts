@@ -3,6 +3,7 @@ import { PublicKey } from "@solana/web3.js";
 
 export interface AppStore {
   mint: PublicKey | undefined;
+  ata: PublicKey | undefined;
   tokenDecimals: number;
   tokenBalance: number;
   delegate: PublicKey | undefined;
@@ -10,6 +11,7 @@ export interface AppStore {
   transactionInProgress: boolean;
 
   setMint: (mint: PublicKey) => void;
+  setAta: (ata: PublicKey | undefined) => void;
   setTokenDecimals: (decimals: number) => void;
   setTokenBalance: (balance: number) => void;
   setDelegate: (delegate: PublicKey | undefined) => void;
@@ -19,6 +21,7 @@ export interface AppStore {
 
 export const useAppStore = create<AppStore>(set => ({
   mint: undefined,
+  ata: undefined,
   tokenDecimals: 0,
   tokenBalance: 0,
   delegate: undefined,
@@ -26,6 +29,7 @@ export const useAppStore = create<AppStore>(set => ({
   transactionInProgress: false,
 
   setMint: mint => set(() => ({ mint: mint })),
+  setAta: ata => set(() => ({ ata: ata })),
   setTokenDecimals: decimals => set(() => ({ tokenDecimals: decimals })),
   setTokenBalance: balance => set(() => ({ tokenBalance: balance })),
   setDelegate: delegate => set(() => ({ delegate: delegate })),
