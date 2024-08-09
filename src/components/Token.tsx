@@ -15,21 +15,27 @@ export default function Token() {
   const delegatedAmount = useAppStore(state => state.delegatedAmount);
 
   const formatDelegatedTokenAmount = (delegatedAmount: bigint) => {
-    return (Number(delegatedAmount) / Math.pow(10, tokenDecimals)).toString();
+    const res = Number(delegatedAmount) / Math.pow(10, tokenDecimals);
+
+    if (isNaN(res)) {
+      return 0;
+    }
+
+    return res;
   };
 
   return (
-    <div className="flex flex-col gap-4 max-w-192">
-      <h3 className="text-2xl">SPL Token</h3>
+    <div className="max-w-2xl w-full mx-auto">
+      <h3 className="text-xl font-semibold pb-4">SPL Token</h3>
 
-      <div className="flex flex-col gap-6">
+      <div className="grid gap-6 p-4 bg-white rounded-md shadow w-full">
         {mint ? (
           <>
-            <div>
-              <div className="break-words">Mint address: {mint?.toBase58()}</div>
-              <div className="break-words">Token balance: {tokenBalance}</div>
-              <div className="break-words">Delegate account: {delegate?.toBase58()}</div>
-              <div className="break-words">Delegated tokens: {formatDelegatedTokenAmount(delegatedAmount)}</div>
+            <div className="break-all">
+              <div>Mint address: {mint.toBase58()}</div>
+              <div>Token balance: {tokenBalance}</div>
+              <div>Delegate account: {delegate?.toBase58()}</div>
+              <div>Delegated tokens: {formatDelegatedTokenAmount(delegatedAmount)}</div>
             </div>
             <MintTokens />
             <BurnTokens />
