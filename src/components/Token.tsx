@@ -11,7 +11,7 @@ export default function Token() {
   const ata = useAppStore(state => state.ata);
   const tokenDecimals = useAppStore(state => state.tokenDecimals);
   const tokenBalance = useAppStore(state => state.tokenBalance);
-  const delegateAccount = useAppStore(state => state.delegateTokenAccount);
+  const delegateAccount = useAppStore(state => state.delegateAccount);
   const delegateTokenAccount = useAppStore(state => state.delegateTokenAccount);
   const delegatedAmount = useAppStore(state => state.delegatedAmount);
 
