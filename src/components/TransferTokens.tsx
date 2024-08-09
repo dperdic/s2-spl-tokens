@@ -9,7 +9,7 @@ import {
   createTransferCheckedInstruction,
   createAssociatedTokenAccountInstruction,
 } from "@solana/spl-token";
-import { confirmTransaction } from "../utils/functions";
+import { confirmTransaction, getStep } from "../utils/functions";
 
 export default function TransferTokens() {
   const transactionInProgress = useAppStore(state => state.transactionInProgress);
@@ -131,7 +131,7 @@ export default function TransferTokens() {
       <input
         type="number"
         placeholder="Amount"
-        step={Math.pow(10, -1 * tokenDecimals)}
+        step={getStep(tokenDecimals)}
         min={0}
         max={tokenBalance}
         value={transferAmount}

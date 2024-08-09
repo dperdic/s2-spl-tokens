@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
-import { confirmTransaction } from "../utils/functions";
+import { confirmTransaction, getStep } from "../utils/functions";
 import { toast } from "react-toastify";
 import { useAppStore } from "../state/store";
 
@@ -83,7 +83,7 @@ export default function Airdrop() {
           <input
             type="number"
             placeholder="Amount"
-            step={Math.pow(10, -1 * 9)}
+            step={getStep(9)}
             min={0}
             value={airdropAmount}
             onChange={event => {

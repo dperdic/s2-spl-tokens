@@ -10,7 +10,7 @@ import {
   getAccount,
   getAssociatedTokenAddress,
 } from "@solana/spl-token";
-import { confirmTransaction } from "../utils/functions";
+import { confirmTransaction, getStep } from "../utils/functions";
 
 export default function DelegateTokens() {
   const transactionInProgress = useAppStore(state => state.transactionInProgress);
@@ -189,7 +189,7 @@ export default function DelegateTokens() {
       <input
         type="number"
         placeholder="Amount"
-        step={Math.pow(10, -1 * tokenDecimals)}
+        step={getStep(tokenDecimals)}
         min={0}
         max={tokenBalance}
         value={delegateAmount}

@@ -15,3 +15,9 @@ export const confirmTransaction = async (
     "confirmed",
   );
 };
+
+export const getStep = (decimals: number): number => {
+  const result = Math.pow(10, -1 * decimals);
+
+  return Math.round(result * Math.pow(10, decimals)) / Math.pow(10, decimals);
+};

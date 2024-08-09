@@ -3,7 +3,7 @@ import { createBurnCheckedInstruction, getAccount } from "@solana/spl-token";
 import { Transaction } from "@solana/web3.js";
 import { useState } from "react";
 import { useAppStore } from "../state/store";
-import { confirmTransaction } from "../utils/functions";
+import { confirmTransaction, getStep } from "../utils/functions";
 import { toast } from "react-toastify";
 
 export default function BurnTokens() {
@@ -97,7 +97,7 @@ export default function BurnTokens() {
         <input
           type="number"
           placeholder="Amount"
-          step={Math.pow(10, -1 * tokenDecimals)}
+          step={getStep(tokenDecimals)}
           min={0}
           max={tokenBalance}
           value={burnAmount}
