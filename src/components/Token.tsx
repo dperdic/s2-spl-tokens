@@ -4,11 +4,11 @@ import MintTokens from "./MintTokens";
 import BurnTokens from "./BurnTokens";
 import TransferTokens from "./TransferTokens";
 import DelegateTokens from "./DelegateTokens";
-import RevokeDelegate from "./RevokeDelegate";
-import CloseTokenAccount from "./CloseTokenAccount";
+import TokenAccount from "./TokenAccount";
 
 export default function Token() {
   const mint = useAppStore(state => state.mint);
+  const ata = useAppStore(state => state.ata);
   const tokenDecimals = useAppStore(state => state.tokenDecimals);
   const tokenBalance = useAppStore(state => state.tokenBalance);
   const delegate = useAppStore(state => state.delegate);
@@ -25,24 +25,24 @@ export default function Token() {
   };
 
   return (
-    <div className="max-w-2xl w-full mx-auto">
+    <div className="max-w-3xl w-full mx-auto">
       <h3 className="text-xl font-semibold pb-4">SPL Token</h3>
 
-      <div className="grid gap-6 p-4 bg-white rounded-md shadow w-full">
+      <div className="grid gap-8 p-4 bg-white rounded-md shadow w-full">
         {mint ? (
           <>
             <div className="break-all">
               <div>Mint address: {mint.toBase58()}</div>
+              <div>Token account: {ata?.toBase58()}</div>
               <div>Token balance: {tokenBalance}</div>
               <div>Delegate account: {delegate?.toBase58()}</div>
               <div>Delegated tokens: {formatDelegatedTokenAmount(delegatedAmount)}</div>
             </div>
+            <TokenAccount />
             <MintTokens />
             <BurnTokens />
             <TransferTokens />
             <DelegateTokens />
-            <CloseTokenAccount />
-            {delegate && <RevokeDelegate />}
           </>
         ) : (
           <CreateMint />
