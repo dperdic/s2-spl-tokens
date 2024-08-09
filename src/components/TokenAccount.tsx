@@ -19,7 +19,7 @@ export default function TokenAccount() {
   const tokenBalance = useAppStore(state => state.tokenBalance);
   const setTokenBalance = useAppStore(state => state.setTokenBalance);
   const tokenDecimals = useAppStore(state => state.tokenDecimals);
-  const setDelegate = useAppStore(state => state.setDelegate);
+  const setDelegate = useAppStore(state => state.setDelegateTokenAccount);
   const setDelegatedAmount = useAppStore(state => state.setDelegatedAmount);
   const { connection } = useConnection();
   const { publicKey, sendTransaction } = useWallet();

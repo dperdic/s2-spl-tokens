@@ -19,8 +19,9 @@ export default function DelegateTokens() {
   const ata = useAppStore(state => state.ata);
   const tokenDecimals = useAppStore(state => state.tokenDecimals);
   const tokenBalance = useAppStore(state => state.tokenBalance);
-  const delegate = useAppStore(state => state.delegate);
-  const setDelegate = useAppStore(state => state.setDelegate);
+  const delegate = useAppStore(state => state.delegateTokenAccount);
+  const setDelegateAccount = useAppStore(state => state.setDelegateAccount);
+  const setDelegateTokenAccount = useAppStore(state => state.setDelegateTokenAccount);
   const setDelegatedAmount = useAppStore(state => state.setDelegatedAmount);
 
   const [localDelegateAddress, setLocalDelegateAddress] = useState<string>("");
@@ -108,7 +109,8 @@ export default function DelegateTokens() {
 
       const account = await getAccount(connection, senderAta);
 
-      setDelegate(account.delegate ?? undefined);
+      setDelegateAccount(delegatePublicKey);
+      setDelegateTokenAccount(account.delegate ?? undefined);
       setDelegatedAmount(account.delegatedAmount);
 
       setLocalDelegateAddress("");
@@ -164,7 +166,8 @@ export default function DelegateTokens() {
 
       const account = await getAccount(connection, senderAta);
 
-      setDelegate(account.delegate ?? undefined);
+      setDelegateAccount(undefined);
+      setDelegateTokenAccount(account.delegate ?? undefined);
       setDelegatedAmount(account.delegatedAmount);
     }
 

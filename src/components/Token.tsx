@@ -11,7 +11,8 @@ export default function Token() {
   const ata = useAppStore(state => state.ata);
   const tokenDecimals = useAppStore(state => state.tokenDecimals);
   const tokenBalance = useAppStore(state => state.tokenBalance);
-  const delegate = useAppStore(state => state.delegate);
+  const delegateAccount = useAppStore(state => state.delegateTokenAccount);
+  const delegateTokenAccount = useAppStore(state => state.delegateTokenAccount);
   const delegatedAmount = useAppStore(state => state.delegatedAmount);
 
   const formatDelegatedTokenAmount = (delegatedAmount: bigint) => {
@@ -35,7 +36,8 @@ export default function Token() {
               <div>Mint address: {mint.toBase58()}</div>
               <div>Token account: {ata?.toBase58()}</div>
               <div>Token balance: {tokenBalance}</div>
-              <div>Delegate account: {delegate?.toBase58()}</div>
+              <div>Delegate account: {delegateAccount?.toBase58()}</div>
+              <div>Delegate token account: {delegateTokenAccount?.toBase58()}</div>
               <div>Delegated tokens: {formatDelegatedTokenAmount(delegatedAmount)}</div>
             </div>
             <TokenAccount />
