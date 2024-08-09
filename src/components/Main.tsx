@@ -20,8 +20,8 @@ export default function Main() {
         </div>
       ) : (
         <div className="w-full max-w-2xl mx-auto">
-          <div className="grid gap-4 p-8 bg-white rounded-md shadow w-full text-center">
-            <h2 className="text-xl font-semibold">Connect a wallet to continue</h2>
+          <div className="p-8 bg-white rounded-md shadow w-full text-center">
+            <h3 className="text-xl font-semibold">Connect a wallet to continue</h3>
           </div>
         </div>
       )}
